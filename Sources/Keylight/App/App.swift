@@ -49,18 +49,28 @@ struct KeylightApp: App {
 }
 
 private struct KeylightMenu: View {
-    @ObservedObject var studio: Studio
+    let studio: Studio
+    @StateObject private var menu: StatusMenuState
     @Environment(\.openWindow) private var openWindow
+
+    init(studio: Studio) {
+        self.studio = studio
+        _menu = StateObject(wrappedValue: StatusMenuState(studio: studio))
+    }
 
     var body: some View {
         Button("Open Keylight") {
             openWindow(id: "studio")
             NSApp.activate(ignoringOtherApps: true)
         }
-        Picker("Lighting mode", selection: $studio.selected) {
-            ForEach(studio.scenes) { Text($0.name).tag($0.id) }
+        Menu("Lighting modes") {
+            Picker("Lighting mode", selection: Binding(get: { menu.selected }, set: { studio.selected = $0 })) {
+                ForEach(menu.modes) { Text($0.name).tag($0.id) }
+            }
+            .pickerStyle(.inline)
+            .labelsHidden()
         }
-        Button(studio.paused ? "Resume" : "Pause") { studio.paused.toggle() }
+        Button(menu.paused ? "Resume" : "Pause") { studio.paused.toggle() }
         Divider()
         Button("Quit Keylight") { NSApp.terminate(nil) }
     }
