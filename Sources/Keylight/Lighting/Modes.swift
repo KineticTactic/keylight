@@ -10,6 +10,7 @@ enum FactoryMode: String, CaseIterable {
     case aurora = "490CA782-1EED-4AAD-828F-46C870FAA303"
     case meteor = "490CA782-1EED-4AAD-828F-46C870FAA304"
     case ember = "490CA782-1EED-4AAD-828F-46C870FAA305"
+    case minecraft = "490CA782-1EED-4AAD-828F-46C870FAA310"
     case cinema = "490CA782-1EED-4AAD-828F-46C870FAA306"
 
     var id: UUID { UUID(uuidString: rawValue)! }
@@ -24,6 +25,7 @@ enum FactoryMode: String, CaseIterable {
         case .aurora: return "Aurora Curtains"
         case .meteor: return "Meteor Trails"
         case .ember: return "Ember Drift"
+        case .minecraft: return "Minecraft"
         case .cinema: return "Cinema Wash"
         }
     }
@@ -39,6 +41,7 @@ enum FactoryMode: String, CaseIterable {
         case .aurora: return "Mint and violet ribbons fold across a dark sky."
         case .meteor: return "Staggered comets cross alternating rows, leaving warm amber tails."
         case .ember: return "Slow pockets of copper and gold rise through a deep red glow."
+        case .minecraft: return "Mirror the display as you play. Elytra flight sends green and cyan ripples down the edges, Nether portals wash the keys violet, and damage flashes red."
         case .cinema: return "Five pools of screen color blend across the board, with a warm bass accent along the bottom."
         }
     }
@@ -67,6 +70,7 @@ enum FactoryMode: String, CaseIterable {
         case .aurora: layers = [Layer(effect: .aurora, color: RGB(r: 0.15, g: 1, b: 0.67), secondary: RGB(r: 0.49, g: 0.19, b: 1), speed: 0.36)]
         case .meteor: layers = [Layer(effect: .meteors, color: RGB(r: 1, g: 0.92, b: 0.72), secondary: RGB(r: 1, g: 0.25, b: 0.04), speed: 0.60)]
         case .ember: layers = [Layer(effect: .embers, color: RGB(r: 0.48, g: 0.035, b: 0.012), secondary: RGB(r: 1, g: 0.63, b: 0.11), speed: 0.48)]
+        case .minecraft: layers = [Layer(effect: .minecraft)]
         case .cinema:
             let bottom = Set(Board.keys.filter { $0.y == 5.25 }.map(\.id))
             layers = [Layer(effect: .cinema), Layer(effect: .bass, color: RGB(r: 1, g: 0.63, b: 0.38), opacity: 0.45, keys: bottom)]

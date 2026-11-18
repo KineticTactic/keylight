@@ -14,6 +14,7 @@ enum Effect: String, Codable, CaseIterable {
     case solid = "Solid", wave = "Wave", screen = "Screen ambience", bass = "Bass pulse"
     case drum = "Drum hit", spectrum = "Frequency bands", breathe = "Breathe", ripple = "Radial ripple"
 
+    case minecraft = "Minecraft screen sync"
     case hiHat = "Hi-hat"
 
     case aurora = "Aurora curtains", meteors = "Meteor trails", embers = "Ember drift"
@@ -24,7 +25,7 @@ enum Effect: String, Codable, CaseIterable {
     var usesMix: Bool { self == .ensemble || self == .orbits }
     var followsTempo: Bool { self == .tempo || usesMix }
 
-    var usesScreen: Bool { self == .screen || self == .cinema }
+    var usesScreen: Bool { self == .screen || self == .cinema || self == .minecraft }
     var usesBands: Bool { self == .spectrum || self == .towers }
     var usesAudio: Bool { self == .hiHat || self == .drum || usesBands || self == .bass || followsTempo || self == .bloom }
     var hasMotion: Bool { [.wave, .breathe, .ripple, .aurora, .meteors, .embers].contains(self) }
@@ -120,6 +121,7 @@ extension LightingScene {
 }
 
 struct Signals {
+    var minecraft = MinecraftLighting()
     var quietDuration: Double?
     var silenceBlend = 0.0
     var screen = Array(repeating: RGB.black, count: Board.keys.count)
@@ -147,6 +149,8 @@ enum EffectEngine {
                 case .aurora: ink = ModeEffects.aurora(x: x, y: y, time: time, layer: layer)
                 case .meteors: ink = ModeEffects.meteor(x: x, row: Int(key.y), time: time, layer: layer)
                 case .embers: ink = ModeEffects.embers(x: x, y: y, time: time, layer: layer)
+                case .minecraft:
+                    ink = signals.minecraft.color(over: signals.screen[key.id], key: key)
                 case .cinema:
                     let position = min(4, max(0, x * 5 - 0.5))
                     let lo = Int(position)

@@ -21,6 +21,7 @@ Choose a mode in the sidebar or menu bar. Each is ready to use, and **Edit layer
 | **Aurora Curtains** | Ambient | Mint and violet ribbons curl above and below one another. |
 | **Meteor Trails** | Ambient | Comets travel in opposite directions on alternating rows, trailing amber light. |
 | **Ember Drift** | Ambient | A slow copper-to-gold glow rises from the lower rows. |
+| **Minecraft** | Screen + Fabric mod | Live screen colors with Elytra edge ripples, violet Nether portal transitions and a red damage flash. |
 | **Cinema Wash** | Screen + audio | Display colors blend across five regions. Bass adds warmth along the bottom row. |
 
 **Tempo Tide**, **Velvet Ensemble**, and **Twin Orbits** estimate 65–180 BPM from repeated attacks in playback audio. The tracker looks for repeated spacing between attacks across several beats. It weighs their strength and can follow a pulse through extra notes and skipped beats. **Detected hit** flashes on accepted attacks. The dot on **Metronome** crosses the top once per beat of the lighting clock, including while the detector is finding a tempo. **Holding** indicates a recent estimate carried through a short gap. Sparse or syncopated passages can take longer to lock, and subdivisions can produce a half- or double-time estimate. Motion continues smoothly while listening. Open **Edit layers → Appearance → Beats per cycle** to adjust the pace. In Velvet Ensemble and Twin Orbits, **Mix smoothing** sets how gradually the lights respond to bass, mids, and treble (0.4–3 seconds).
@@ -45,6 +46,19 @@ open dist/Keylight.app
 Open **Calibrate colors…** at the foot of the sidebar. The swatch shows the target color and the keyboard displays a solid test patch. Adjust the red, green and blue sliders while looking at the keys. For cyan-tinted switches, start with white and lower green and blue until the keys look neutral. Aim for the closest hue the LEDs and switches can produce.
 
 Choose **Apply to all modes** at any point. Keylight interpolates between your matches for every other color, including dim keys and fades. The seven essentials cover white and the saturated colors. **Fine tuning** adds 19 individually adjustable shades. Black always turns the LEDs off. **Cancel** discards the current session. Switch **Calibrated colors** on or off at the foot of the sidebar to compare the result while a mode is playing. Keylight keeps your matches and remembers the switch setting when you reopen the app. Turning it on for the first time opens calibration setup. The USB cable and receiver share the same profile.
+
+## Minecraft
+
+Select **Screen → Minecraft**, turn on **Capture**, and select the display where you play. Screen sync uses Keylight’s usual macOS recording permission. For game events, install the client companion in the Fabric 26.3 instance you play and restart Minecraft. For the standard Mac launcher, build and install it with JDK 25 and Python 3 after launching the Fabric profile once:
+
+```sh
+./scripts/build-minecraft-mod.py
+cp dist/keylight-damage-26.3.jar "$HOME/Library/Application Support/minecraft/mods/"
+```
+
+During Elytra flight, a bright green ripple runs down the leftmost keys and a cyan ripple runs down the rightmost keys. Their speed follows your flight speed. Each firework boost sends a brighter pulse down those same two columns. The center keys keep their live screen colors. In a Nether portal, violet moves from the rim toward the center as the portal charges. Stepping out reverses the effect. After crossing, the new display colors return from the center outward. A damage hit takes priority and flashes the board red for 300 ms.
+
+The client sends game events to UDP port 49375 on IPv4 localhost. It works with the HUD hidden and on multiplayer servers. Screen sync also works on its own. Keylight listens during active Minecraft-mode capture and releases the port when you pause or switch modes.
 
 ## Existing libraries
 

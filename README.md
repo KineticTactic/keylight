@@ -17,13 +17,13 @@ cd keylight
 open dist/Keylight.app
 ```
 
-Keylight tries to connect once at launch. To connect later, open **URX Core75 → Connect keyboard**. Pick one of ten modes and enable **Capture** for music or screen sync. macOS will ask for recording permission. Ambient modes run without capture.
+Keylight tries to connect once at launch. To connect later, open **URX Core75 → Connect keyboard**. Pick a mode and enable **Capture** for music or screen sync. macOS will ask for recording permission. Ambient modes run without capture.
 
 To make your own mode, duplicate a preset and open **Edit layers**. You can assign effects to individual keys, tune frequency bands, and choose a color that fades in during silence. Your edits save automatically.
 
 ## Lighting modes
 
-![Animated preview of all ten lighting modes on the Core75](docs/lighting-modes.gif)
+![Animated preview of ten lighting modes on the Core75](docs/lighting-modes.gif)
 
 *Music and screen modes use simulated inputs in this preview.*
 

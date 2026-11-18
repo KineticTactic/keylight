@@ -1,0 +1,7 @@
+{
+  "required": true,
+  "package": "keylight.minecraft.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": ["PlayerEventsMixin", "RocketMixin"],
+  "injectors": { "defaultRequire": 1 }
+}

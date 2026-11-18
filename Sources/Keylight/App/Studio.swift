@@ -42,6 +42,7 @@ final class Studio: ObservableObject {
     private var rhythmSceneID: UUID?
     private var elapsed = 0.0
     private var lastTick = ProcessInfo.processInfo.systemUptime
+    private var minecraftInput: MinecraftInput?
     private var capture: Capture?
     private var captureTask: Task<Void, Never>?
     private var captureKey = ""
@@ -165,6 +166,7 @@ final class Studio: ObservableObject {
 
     func finish() {
         timer?.cancel()
+        minecraftInput = nil
         save()
         epoch += 1
         usb.sync { keyboard.close() }
@@ -176,9 +178,11 @@ final class Studio: ObservableObject {
         let enabled = captureEnabled && !paused
         let screen = enabled && scene.layers.contains { $0.effect.usesScreen }
         let audio = enabled // The live spectrum also works without an audio-driven layer.
-        let next = (screen || audio) ? "\(screen)/\(audio)/\(displayID ?? CGMainDisplayID())" : ""
+        let minecraft = screen && scene.layers.contains { $0.effect == .minecraft }
+        let next = (screen || audio) ? "\(screen)/\(audio)/\(minecraft)/\(displayID ?? CGMainDisplayID())" : ""
         guard captureKey != next else { return }
         captureKey = next
+        minecraftInput = nil
         bandFilter = BandSmoothing()
         silence = SilenceFade()
         let old = capture
@@ -205,6 +209,10 @@ final class Studio: ObservableObject {
                 if Task.isCancelled { await source.stop(); return }
                 capture = source
                 captureStatus = "Capture active"
+                if minecraft {
+                    do { minecraftInput = try MinecraftInput() }
+                    catch { captureStatus = "Screen sync active. Minecraft events unavailable on port \(MinecraftInput.port). \(error.localizedDescription)" }
+                }
             } catch {
                 guard !Task.isCancelled else { return }
                 captureKey = ""
@@ -227,6 +235,7 @@ final class Studio: ObservableObject {
         let delta = now - lastTick
         elapsed += min(delta, 0.2)
         var signals = capture?.snapshot() ?? Signals()
+        if let minecraftInput { signals.minecraft = minecraftInput.snapshot(at: now, outputReady: !connected || !busy) }
         signals.silenceBlend = silence.update(quietDuration: signals.quietDuration, delta: delta)
         if rhythmSceneID != selected {
             rhythmClocks.removeAll()

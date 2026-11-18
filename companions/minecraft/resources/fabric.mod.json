@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "keylight_damage",
+  "version": "1.1.0",
+  "name": "Keylight Minecraft Sync",
+  "description": "Syncs your player’s damage, Elytra flight, rocket boosts and Nether portal travel with Keylight.",
+  "environment": "client",
+  "mixins": ["keylight-damage.mixins.json"],
+  "depends": {
+    "minecraft": "26.3",
+    "fabricloader": ">=0.19.2",
+    "java": ">=25"
+  }
+}

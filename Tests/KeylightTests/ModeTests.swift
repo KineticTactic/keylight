@@ -64,7 +64,7 @@ final class ModeTests: XCTestCase {
 
     func testFinishedModesRenderDistinctFrames() {
         let previews = FactoryMode.thumbnails
-        XCTAssertEqual(previews.count, 10)
+        XCTAssertEqual(previews.count, FactoryMode.allCases.count)
         var encoded = Set<Data>()
         for colors in previews.values {
             XCTAssertEqual(colors.count, 82)
