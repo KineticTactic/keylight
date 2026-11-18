@@ -21,4 +21,10 @@ Keylight tries to connect once at launch. To connect later, open **URX Core75 â†
 
 To make your own mode, duplicate a preset and open **Edit layers**. You can assign effects to individual keys, tune frequency bands, and choose a color that fades in during silence. Your edits save automatically.
 
+## Lighting modes
+
+![Animated preview of all ten lighting modes on the Core75](docs/lighting-modes.gif)
+
+*Music and screen modes use simulated inputs in this preview.*
+
 Run `swift test` to test the project. For more on effects, controls, and hardware support, see the [Keylight guide](docs/guide.md).
