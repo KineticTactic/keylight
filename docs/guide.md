@@ -40,6 +40,12 @@ open dist/Keylight.app
 
 **Disconnect** or quit normally to restore the previous keyboard lighting. Quit competing lighting controllers before connecting. Keylight only sends volatile lighting updates.
 
+## Match the keyboard colors
+
+Open **Calibrate colors…** at the foot of the sidebar. The swatch shows the target color and the keyboard displays a solid test patch. Adjust the red, green and blue sliders while looking at the keys. For cyan-tinted switches, start with white and lower green and blue until the keys look neutral. Aim for the closest hue the LEDs and switches can produce.
+
+Choose **Apply to all modes** at any point. Keylight interpolates between your matches for every other color, including dim keys and fades. The seven essentials cover white and the saturated colors. **Fine tuning** adds 19 individually adjustable shades. Black always turns the LEDs off. **Cancel** discards the current session. Switch **Calibrated colors** on or off at the foot of the sidebar to compare the result while a mode is playing. Keylight keeps your matches and remembers the switch setting when you reopen the app. Turning it on for the first time opens calibration setup. The USB cable and receiver share the same profile.
+
 ## Existing libraries
 
 The original **Drum perimeter** mode now appears as **Drums, Hats & Spectrum**, with its saved colors, thresholds and masks. An existing personal name takes precedence. Untouched **Northern lights** and **Screen + bass** starters are replaced by **Aurora Curtains** and **Cinema Wash**. Edited versions and duplicates are kept under **My modes**.

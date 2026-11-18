@@ -5,8 +5,8 @@
 <key>CFBundleIdentifier</key><string>local.keylight.studio</string>
 <key>CFBundleName</key><string>Keylight</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>0.9.6</string>
-<key>CFBundleVersion</key><string>18</string>
+<key>CFBundleShortVersionString</key><string>0.9.8</string>
+<key>CFBundleVersion</key><string>20</string>
 <key>LSMinimumSystemVersion</key><string>14.0</string>
 <key>NSAudioCaptureUsageDescription</key><string>Use playback audio to animate your lighting scenes.</string>
 <key>NSScreenCaptureUsageDescription</key><string>Sample colors from the selected display for keyboard lighting.</string>

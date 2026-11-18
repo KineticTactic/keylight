@@ -5,6 +5,7 @@ struct Library: Codable, Equatable {
     var scenes: [LightingScene]
     var selected: UUID
     var inputGainDB: Double?
+    var calibration: ColorCalibration?
 }
 
 @MainActor
@@ -12,6 +13,12 @@ final class Studio: ObservableObject {
     @Published var scenes: [LightingScene] { didSet { scheduleSave() } }
     @Published var selected: UUID { didSet { scheduleSave() } }
     @Published var inputGainDB: Double { didSet { scheduleSave() } }
+    @Published var calibration: ColorCalibration {
+        didSet { outputLUT = ColorLUT(calibration); scheduleSave() }
+    }
+    var calibrationPatch: RGB?
+    private var outputLUT: ColorLUT
+    private var lastOutput: [RGB] = []
     @Published var frame = Array(repeating: RGB.black, count: Board.keys.count)
     @Published var beatMonitors: [UUID: BeatMonitor] = [:]
     @Published var meter = SpectrumMeter.silent
@@ -60,6 +67,9 @@ final class Studio: ObservableObject {
                 updatedCatalog = library != saved
             } catch { readError = "Could not load Scenes.json. \(error.localizedDescription)" }
         }
+        let profile = library.calibration ?? ColorCalibration()
+        calibration = profile
+        outputLUT = ColorLUT(profile)
         inputGainDB = min(24, max(-12, library.inputGainDB ?? 0))
         scenes = library.scenes
         selected = library.scenes.contains { $0.id == library.selected } ? library.selected : library.scenes[0].id
@@ -103,7 +113,8 @@ final class Studio: ObservableObject {
         do {
             let encoder = JSONEncoder()
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-            let data = try encoder.encode(Library(scenes: scenes, selected: selected, inputGainDB: inputGainDB == 0 ? nil : inputGainDB))
+            let data = try encoder.encode(Library(scenes: scenes, selected: selected, inputGainDB: inputGainDB == 0 ? nil : inputGainDB,
+                                                  calibration: calibration.matches.isEmpty ? nil : calibration))
             try FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
             // Preserve the original if an existing library could not be decoded.
             if storageError.hasPrefix("Could not load"), FileManager.default.fileExists(atPath: file.path) {
@@ -136,6 +147,7 @@ final class Studio: ObservableObject {
 
     func disconnect() {
         epoch += 1
+        lastOutput = []
         connected = false
         connecting = false
         outputStatus = "Preview only"
@@ -209,6 +221,7 @@ final class Studio: ObservableObject {
         guard !paused else {
             if !beatMonitors.isEmpty { beatMonitors = [:] }
             if meter != SpectrumMeter.silent { meter = SpectrumMeter.silent }
+            sendOutput()
             return
         }
         let delta = now - lastTick
@@ -237,7 +250,19 @@ final class Studio: ObservableObject {
         let levels = bandFilter.update(scene: scene, audio: signals.audio, delta: delta)
         let rendered = EffectEngine.render(scene, time: elapsed, signals: signals, smoothedBands: levels)
         if rendered != frame { frame = rendered }
+        sendOutput()
+    }
+
+    func physicalFrame() -> [RGB] {
+        if let calibrationPatch { return Array(repeating: calibrationPatch, count: frame.count) }
+        return outputLUT.apply(to: frame)
+    }
+
+    private func sendOutput() {
         guard connected, !busy else { return }
+        let rendered = physicalFrame()
+        guard rendered != lastOutput else { return }
+        lastOutput = rendered
         busy = true
         let generation = epoch
         usb.async { [keyboard] in

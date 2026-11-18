@@ -10,6 +10,7 @@ struct Editor: View {
     @State private var selectedLayer: UUID?
     @State private var section = LayerPage.appearance
     @State private var showingDevice = false
+    @State private var showingCalibration = false
     @State private var showingGain = false
     @State private var renaming = false
 
@@ -53,6 +54,9 @@ struct Editor: View {
         .preferredColorScheme(.dark)
         .tint(StudioStyle.lilac)
         .frame(minWidth: 760, minHeight: 550)
+        .sheet(isPresented: $showingCalibration, onDismiss: { studio.calibrationPatch = nil }) {
+            CalibrationSheet(studio: studio)
+        }
         .onChange(of: studio.selected) { _, _ in
             renaming = false
             selectedLayer = nil
@@ -75,6 +79,24 @@ struct Editor: View {
                 }.padding(.horizontal, 9).padding(.bottom, 12)
             }
             Divider()
+            Toggle("Calibrated colors", isOn: Binding(
+                get: { studio.calibration.enabled && !studio.calibration.matches.isEmpty },
+                set: { enabled in
+                    if studio.calibration.matches.isEmpty {
+                        showingCalibration = true
+                    } else {
+                        studio.calibration.enabled = enabled
+                    }
+                }
+            ))
+            .toggleStyle(.switch).controlSize(.small)
+            .padding(.horizontal, 15).padding(.top, 10)
+            Button { showingCalibration = true } label: {
+                Label("Calibrate colors…", systemImage: "slider.horizontal.below.sun.max")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 15).padding(.vertical, 8).contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
             HStack(spacing: 9) {
                 Image(systemName: "keyboard").font(.title2)
                 VStack(alignment: .leading, spacing: 2) {
@@ -113,6 +135,9 @@ struct Editor: View {
     private var connection: some View {
         VStack(alignment: .leading, spacing: 14) {
             Label("Keyboard connection", systemImage: "keyboard").font(.headline)
+            if !studio.calibration.matches.isEmpty {
+                Toggle("Use calibrated colors", isOn: $studio.calibration.enabled)
+            }
             Picker("Transport", selection: $studio.connectionChoice) {
                 ForEach(ConnectionChoice.allCases, id: \.self) { Text($0.rawValue).tag($0) }
             }.disabled(studio.connected || studio.connecting)
