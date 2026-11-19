@@ -11,8 +11,12 @@ struct BandSmoothing {
         if sceneID != scene.id { previous.removeAll(); ensembleTargets.removeAll(); sceneID = scene.id }
         var current: [UUID: [Double]] = [:]
         var nextTargets: [UUID: [Double]] = [:]
-        for layer in scene.layers where layer.effect.usesMix || (layer.effect.usesBands && layer.audio.smoothing > 0) {
-            var target = audio[layer.id]?.levels ?? Array(repeating: 0.0, count: layer.effect == .towers ? FrequencyBand.towerBands.count : 4)
+        for layer in scene.layers where layer.effect.usesMix || ((layer.effect.usesBands || layer.effect == .bass) && layer.audio.smoothing > 0) {
+            // Mix effects produce regional levels independently of their detector band.
+            let count = layer.effect == .towers ? layer.frequencyBands.count : 4
+            let levels = audio[layer.id]?.levels ?? []
+            var target = Array(levels.prefix(count))
+            target += Array(repeating: 0, count: count - target.count)
             let history = previous[layer.id] ?? []
             let old = history.count == target.count ? history : Array(repeating: 0, count: target.count)
             let duration = layer.effect.usesMix ? layer.mixSmoothing : layer.audio.smoothing
@@ -26,7 +30,11 @@ struct BandSmoothing {
                 nextTargets[layer.id] = target
             }
             current[layer.id] = zip(old, target).map { prior, goal in
-                let value = prior + (goal - prior) * blend
+                // Amplitude rings rise gently and release more slowly.
+                let response = layer.effect == .bass
+                    ? 1 - exp(-max(0, delta) / (duration * (goal > prior ? 0.5 : 1.4)))
+                    : blend
+                let value = prior + (goal - prior) * response
                 return abs(value - goal) < 0.0001 ? goal : value
             }
         }

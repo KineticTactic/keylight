@@ -2,6 +2,45 @@ import XCTest
 @testable import Keylight
 
 final class ModeTests: XCTestCase {
+    func testEveryModeRendersBeforeCaptureAndAcrossCaptureRestart() {
+        for mode in FactoryMode.allCases {
+            let scene = mode.makeScene()
+            var filter = BandSmoothing()
+            let active = Dictionary(uniqueKeysWithValues: scene.layers.map {
+                ($0.id, AudioReading(levels: Array(repeating: 0.4, count: $0.effect == .towers ? FrequencyBand.towerBands.count : 4)))
+            })
+            for audio: [UUID: AudioReading] in [[:], active, [:], active] {
+                let smoothed = filter.update(scene: scene, audio: audio, delta: 1.0 / 30)
+                let frame = EffectEngine.render(scene, time: 0, signals: Signals(audio: audio), smoothedBands: smoothed)
+                XCTAssertEqual(frame.count, Board.keys.count)
+                XCTAssertTrue(frame.allSatisfy { $0.r.isFinite && $0.g.isFinite && $0.b.isFinite })
+            }
+        }
+    }
+
+    func testHaloRegionsAndAmplitudeRelease() {
+        let scene = FactoryMode.halo.makeScene()
+        let center = scene.layers[0], outer = scene.layers[1], inner = scene.layers[2]
+        let masks = scene.layers.map { $0.keys! }
+        XCTAssertTrue(masks[0].isDisjoint(with: masks[1]))
+        XCTAssertTrue(masks[0].isDisjoint(with: masks[2]))
+        XCTAssertTrue(masks[1].isDisjoint(with: masks[2]))
+        XCTAssertEqual(masks.reduce(Set<Int>()) { $0.union($1) }, Set(Board.keys.map(\.id)))
+        XCTAssertEqual(center.color, LightingScene.drumScene.layers[0].color)
+        XCTAssertEqual(center.frequencyBands, LightingScene.drumScene.layers[0].frequencyBands)
+        var filter = BandSmoothing()
+        let input = [outer.id: AudioReading(levels: [0.8]), inner.id: AudioReading(levels: [0.4])]
+        var smoothed: [UUID: [Double]] = [:]
+        for _ in 0..<30 { smoothed = filter.update(scene: scene, audio: input, delta: 1.0 / 30) }
+        let active = EffectEngine.render(scene, time: 0, signals: Signals(audio: input), smoothedBands: smoothed)
+        XCTAssertGreaterThan(active[0].r, 0.5)
+        let released = filter.update(scene: scene, audio: [:], delta: 1.0 / 30)
+        XCTAssertGreaterThan(released[outer.id]![0], 0)
+        XCTAssertLessThan(released[outer.id]![0], smoothed[outer.id]![0])
+        let tail = EffectEngine.render(scene, time: 0, signals: Signals(), smoothedBands: released)
+        XCTAssertGreaterThan(tail[0].r, 0)
+    }
+
     func testTempoFromPlaybackPulses() throws {
         let rate = 48_000.0
         let layer = FactoryMode.tempo.makeScene().layers[0]

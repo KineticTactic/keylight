@@ -211,7 +211,7 @@ struct LayerInspector: View {
                 Text(String(format: "%.1f s", layer.mixSmoothing)).monospacedDigit().frame(width: 54)
             }
         }
-        if layer.effect.usesBands {
+        if layer.effect.usesBands || layer.effect == .bass {
             HStack {
                 Text("Smoothing")
                 Slider(value: edit(\.audio.smoothing), in: 0...0.6, step: 0.01).accessibilityLabel("Band smoothing")

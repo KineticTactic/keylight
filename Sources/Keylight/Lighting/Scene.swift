@@ -212,10 +212,10 @@ enum EffectEngine {
                 case .screen: ink = signals.screen[key.id]
                 case .bass:
                     ink = layer.color
-                    alpha *= min(1, (input?.levels[0] ?? 0) * layer.audio.gain)
+                    alpha *= min(1, (smoothedBands[layer.id]?.first ?? input?.levels.first ?? 0) * layer.audio.gain)
                 }
                 if !layer.effect.usesAudio && layer.audioModulation == true {
-                    alpha *= min(1, (input?.levels[0] ?? 0) * layer.audio.gain)
+                    alpha *= min(1, (smoothedBands[layer.id]?.first ?? input?.levels.first ?? 0) * layer.audio.gain)
                 }
                 let normal = pixel.mix(ink, alpha)
                 if signals.silenceBlend > 0, layer.usesSilenceColor, let rest = layer.silenceColor {

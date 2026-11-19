@@ -16,6 +16,7 @@ Choose a mode in the sidebar or menu bar. Each is ready to use, and **Edit layer
 | **Velvet Ensemble** | Music | A coral rim, blue center, and lavender number row glide over a 16-beat cycle. Bass, mids, and treble brighten their corresponding regions and move a soft highlight through each one. |
 | **Twin Orbits** | Music | Amber and cyan lights circle on different paths. Bass broadens the first light and treble stretches the second orbit. |
 | **Drums, Hats & Spectrum** | Music | Red percussion around the edge, lavender hi-hats on the number row, and a three-color spectrum across the interior. |
+| **Spectrum Halo** | Music | A three-color spectrum center surrounded by a red bass rim (35–180 Hz) and a pink upper-mid ring (1.2–5 kHz), with smooth attack and release. |
 | **Spectrum Towers** | Music | Twelve independent equalizer columns span 45 Hz to 16 kHz and rise from the bottom row. Aqua at the base gives way to amber at the peaks. |
 | **Bass Echo** | Music | Each bass hit launches an independent coral-to-blue wave. Choose outward or inward rings, or a horizontal or vertical sweep, with **Wave direction** in **Live view**. |
 | **Aurora Curtains** | Ambient | Mint and violet ribbons curl above and below one another. |

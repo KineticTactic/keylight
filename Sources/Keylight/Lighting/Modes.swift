@@ -2,6 +2,7 @@ import Foundation
 
 enum FactoryMode: String, CaseIterable {
     case tempo = "490CA782-1EED-4AAD-828F-46C870FAA301"
+    case halo = "490CA782-1EED-4AAD-828F-46C870FAA311"
     case ensemble = "490CA782-1EED-4AAD-828F-46C870FAA308"
     case orbits = "490CA782-1EED-4AAD-828F-46C870FAA309"
     case percussion = "3360D7CD-7453-4609-ABF2-645879A49566"
@@ -16,6 +17,7 @@ enum FactoryMode: String, CaseIterable {
     var id: UUID { UUID(uuidString: rawValue)! }
     var title: String {
         switch self {
+        case .halo: return "Spectrum Halo"
         case .ensemble: return "Velvet Ensemble"
         case .orbits: return "Twin Orbits"
         case .tempo: return "Tempo Tide"
@@ -32,6 +34,7 @@ enum FactoryMode: String, CaseIterable {
 
     var detail: String {
         switch self {
+        case .halo: return "A three-color spectrum inside a red bass rim and a pink upper-mid ring. Both rings swell and fade smoothly."
         case .ensemble: return "Bass carries the rim, mids wash across the center, and treble colors the number row in slow phrases."
         case .orbits: return "Two pools of light circle in opposite directions. Bass widens the amber pool and treble stretches the cyan orbit."
         case .tempo: return "A continuous color wave timed to the beat of your music."
@@ -49,6 +52,20 @@ enum FactoryMode: String, CaseIterable {
     func makeScene() -> LightingScene {
         let layers: [Layer]
         switch self {
+        case .halo:
+            let innerRing = Set(Board.keys.filter {
+                !Board.perimeter.contains($0.id) &&
+                    ($0.y == 1.25 || $0.y == 4.25 || $0.x <= 1.75 || $0.x + $0.width >= 15)
+            }.map(\.id))
+            var center = LightingScene.drumScene.layers[0]
+            center.keys = Board.interior.subtracting(innerRing)
+            var outer = Layer(effect: .bass, color: RGB(r: 1, g: 0.025, b: 0.06), keys: Board.perimeter)
+            outer.frequencyBands = [.init(low: 35, high: 180, thresholdDB: -55, gain: 1.5)]
+            outer.audio.smoothing = 0.28
+            var inner = Layer(effect: .bass, color: RGB(r: 1, g: 0.17, b: 0.60), keys: innerRing)
+            inner.frequencyBands = [.init(low: 1200, high: 5000, thresholdDB: -60, gain: 2.5)]
+            inner.audio.smoothing = 0.38
+            layers = [center, outer, inner]
         case .ensemble:
             var glide = Layer(effect: .ensemble, color: RGB(r: 1, g: 0.29, b: 0.31), secondary: RGB(r: 0.94, g: 0.63, b: 1))
             glide.middle = RGB(r: 0.24, g: 0.46, b: 0.94)
